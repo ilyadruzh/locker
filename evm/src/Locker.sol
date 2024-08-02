@@ -15,12 +15,7 @@ contract Locker is ILocker {
     // lockerId => (user => amount)
     mapping(bytes32 => mapping(address => uint256)) public lockers;
 
-    event LockerCreated(
-        bytes32 indexed lockerId,
-        address indexed customer,
-        address[] users,
-        uint256 amount
-    );
+    event LockerCreated(bytes32 indexed lockerId, address indexed customer, address[] users, uint256 amount);
 
     error NotEnoughValue(uint256 excepted, uint256 actual);
 
@@ -34,20 +29,20 @@ contract Locker is ILocker {
         feePrice = _fee;
     }
 
-    function createLockerWithAmount(
-        address[] memory users,
-        uint256 amount
-    ) external payable override returns (bytes32 lockerId) {
+    function createLockerWithAmount(address[] memory users, uint256 amount)
+        external
+        payable
+        override
+        returns (bytes32 lockerId)
+    {
         uint256 allAmount = users.length * amount;
-        
+
         if (msg.value >= allAmount + feePrice) {
             feeAmount += msg.value - allAmount;
 
             // TODO: если автор решит два раза вызвать однотипную раздачу?
             // TODO: если автор отправит два адреса с разными количесставми?
             lockerId = keccak256(abi.encodePacked(msg.sender, users, amount));
-
-            
 
             for (uint8 count = 0; count < users.length; count++) {
                 lockers[lockerId][users[count]] = amount;
@@ -61,9 +56,7 @@ contract Locker is ILocker {
         }
     }
 
-    function createLockerWithoutAmount(
-        address[] memory users
-    ) public payable returns (bytes32 lockerId) {
+    function createLockerWithoutAmount(address[] memory users) public payable returns (bytes32 lockerId) {
         uint256 amount = msg.value / users.length;
 
         lockerId = keccak256(abi.encodePacked(msg.sender, users, amount));
@@ -97,5 +90,9 @@ contract Locker is ILocker {
 
     function withdraw() public onlyOwner {
         payable(msg.sender).transfer(feeAmount);
+    }
+
+    function getOrdersByCustomer(address customer) external view returns (bytes32[] memory orders) {
+        return customers[customer];
     }
 }
