@@ -6,8 +6,8 @@ import "forge-std/console.sol";
 import {LockerSetUp} from "./LockerSetUp.t.sol";
 import {LockerService} from "../src/LockerService.sol";
 
-// forge test --match-contract LockerWorkFlow
-contract LockerWorkFlow is LockerSetUp {
+// forge test --match-contract CreateEthLocker
+contract CreateEthLocker is LockerSetUp {
     // createLockerWithAmount(address[] memory users, uint256 amount)
 
     function testFail_createLockerWithoutUsers() public {
@@ -35,7 +35,6 @@ contract LockerWorkFlow is LockerSetUp {
         bytes32 lockerWithSmallFund = lockerService.createLocker{value: 101}(_users);
 
         LockerService.Locker memory locker = lockerService.getLockerById(lockerWithSmallFund);
-        
 
         assertEqUint(locker.amount, 1);
     }
@@ -46,6 +45,7 @@ contract LockerWorkFlow is LockerSetUp {
         assertTrue(res);
 
         bool claimed = lockerService.isClaimed(createdLockerId, user3);
+        assertEqUint(address(user3).balance, lockerService.getLockerPart(createdLockerId));
         assertTrue(claimed, "Not claimed");
     }
 
@@ -55,18 +55,7 @@ contract LockerWorkFlow is LockerSetUp {
         lockerService.claim(createdLockerId);
     }
 
-    // function test_createTimeLocker() public {
-    //     address[] memory _users;
-    //     _users[0] = user1;
-    //     _users[1] = user2;
-    //     _users[2] = user3;
-
-    //     uint256 timelock;
-
-    //     vm.prank(customer);
-    //     bytes32 createdLockerId = lockerService.createTimeLocker(_users, timelock);
-    //     bytes32[] memory storedLockerIds = lockerService.getOrdersByCustomer(customer);
-
-    //     assertEqUint(uint256(createdLockerId), uint256(storedLockerIds[0]));
-    // }
+    function test_claim() public {
+        vm.prank(user2);
+    }
 }

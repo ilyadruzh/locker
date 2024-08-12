@@ -34,12 +34,13 @@ contract LockerService is ILocker, LockerManage {
         feePrice = _fee;
     }
 
+    // usual ETH locker
     function createLocker(address[] memory users) external payable returns (bytes32 lockerId) {
         require(msg.value > feePrice, "not enough ether");
         require(users.length > 0, "empty users list");
 
         uint256 amount = msg.value - feePrice;
-        uint256 part = amount / users.length; // TODO: проверить
+        uint256 part = amount / users.length; // TODO: check
 
         Locker memory locker = Locker(address(0x0), amount, 0, users, part);
 
@@ -155,6 +156,11 @@ contract LockerService is ILocker, LockerManage {
             }
         }
         return false;
+    }
+
+    function getLockerPart(bytes32 lockerId) external view returns (uint256 part) {
+        part = lockers[lockerId].part;
+        return part;
     }
 
     ///  WITHDRAW

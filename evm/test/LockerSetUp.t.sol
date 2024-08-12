@@ -15,6 +15,8 @@ contract LockerSetUp is Test {
     address user3 = address(0x13);
     address user4 = address(0x14);
     bytes32 public createdLockerId;
+    bytes32 public createTimeLockerId;
+    uint256 timelock = 1000;
 
     function setUp() public {
         vm.prank(owner);
@@ -26,7 +28,11 @@ contract LockerSetUp is Test {
 
         vm.prank(customer);
         vm.deal(customer, 1 ether);
-        createdLockerId = lockerService.createLocker{value: 1 ether}(_users);
+        createdLockerId = lockerService.createLocker{value: 1 ether}(_users); // create simple locker
+
+        vm.prank(customer);
+        vm.deal(customer, 1 ether);
+        createTimeLockerId = lockerService.createTimeLocker(_users, timelock); // create time locker
 
         bytes32[] memory storedLockerIds = lockerService.getOrdersByCustomer(customer);
         assertEqUint(uint256(createdLockerId), uint256(storedLockerIds[0]));
